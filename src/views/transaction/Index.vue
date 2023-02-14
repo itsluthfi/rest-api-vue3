@@ -21,13 +21,19 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Income</td>
-                  <td>500000</td>
-                  <td>Revenue</td>
+                <tr
+                  v-for="(transaction, index) in transactions.data"
+                  :key="index"
+                >
+                  <td>{{ transaction.title }}</td>
+                  <td>{{ transaction.amount }}</td>
+                  <td>{{ transaction.type }}</td>
                   <td>
                     <router-link
-                      :to="{ name: 'transaction.edit', params: { id: 1 } }"
+                      :to="{
+                        name: 'transaction.edit',
+                        params: { id: transaction.id },
+                      }"
                       class="btn btn-sm btn-outline-info"
                       >Edit</router-link
                     >
@@ -46,7 +52,31 @@
 </template>
 
 <script>
-export default {};
+import axios from "axios";
+import { onMounted, ref } from "vue";
+
+export default {
+  setup() {
+    // reactive state
+    let transactions = ref([]);
+
+    onMounted(() => {
+      // get data from api endpoint
+      axios
+        .get("http://localhost:8000/api/transaction")
+        .then((result) => {
+          transactions.value = result.data;
+        })
+        .catch((err) => {
+          console.log(err.response);
+        });
+    });
+
+    return {
+      transactions,
+    };
+  },
+};
 </script>
 
 <style></style>
