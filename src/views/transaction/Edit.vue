@@ -100,10 +100,11 @@ export default {
       axios
         .get(`http://localhost:8000/api/transaction/${route.params.id}`)
         .then((result) => {
-          transaction.title = result.data.data.title;
-          transaction.amount = result.data.data.amount;
-          transaction.date = result.data.data.date;
-          transaction.type = result.data.data.type;
+          let data = result.data;
+          transaction.title = data.title;
+          transaction.amount = data.amount;
+          transaction.date = data.date;
+          transaction.type = data.type;
           spin.value = 'hide';
         })
         .catch((err) => {
