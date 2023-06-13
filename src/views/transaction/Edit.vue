@@ -1,4 +1,9 @@
 <template>
+  <div id="spin" :class="spin == 'hide' ? 'd-none' : ''" class="position-absolute position-absolute top-50 start-50 translate-middle  w-100 h-100 opacity-50" style="background-color: #fff; z-index: 5;">
+    <div class="spinner-border text-primary position-absolute top-50 start-50" style="width: 5rem; height: 5rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
   <div class="container my-5">
     <div class="row justify-content-center">
       <div class="col-8">
@@ -78,6 +83,7 @@ import axios from "axios";
 export default {
   setup() {
     // data binding
+    let spin = ref('show');
     let transaction = reactive({
       title: "",
       amount: "",
@@ -94,10 +100,12 @@ export default {
       axios
         .get(`http://localhost:8000/api/transaction/${route.params.id}`)
         .then((result) => {
-          transaction.title = result.data.data.title;
-          transaction.amount = result.data.data.amount;
-          transaction.date = result.data.data.date;
-          transaction.type = result.data.data.type;
+          let data = result.data;
+          transaction.title = data.title;
+          transaction.amount = data.amount;
+          transaction.date = data.date;
+          transaction.type = data.type;
+          spin.value = 'hide';
         })
         .catch((err) => {
           console.log(err.response.data);
@@ -122,6 +130,7 @@ export default {
 
     return {
       transaction,
+      spin,
       validation,
       router,
       update,

@@ -1,12 +1,23 @@
 <template>
+  <div id="spin" :class="spin == 'hide'? 'd-none' : ''" class="position-absolute position-absolute top-50 start-50 translate-middle  w-100 h-100 opacity-50" style="background-color: #fff; z-index: 5;">
+    <div class="spinner-border text-primary position-absolute top-50 start-50" style="width: 5rem; height: 5rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+ 
   <div class="container my-5">
     <div class="row justify-content-center">
       <div class="col-8">
-        <router-link
+      
+
+        <div class="d-flex justify-content-between">
+          <router-link
           :to="{ name: 'transaction.create' }"
           class="btn btn-primary btn-sm rounded shadow mb-3"
           >Add</router-link
         >
+        <button @click="[destroy('all',false),spin = 'show']" class="btn btn-danger btn-sm rounded shadow mb-3">Delete All</button>
+        </div>
 
         <div class="card rounded shadow">
           <div class="card-header">Transaction List</div>
@@ -39,7 +50,7 @@
                     >
                     <button
                       class="btn btn-sm btn-outline-danger"
-                      @click.prevent="destroy(transaction.id, index)"
+                      @click.prevent="[destroy(transaction.id,index),spin = 'show']"
                     >
                       Delete
                     </button>
@@ -56,30 +67,32 @@
 
 <script>
 import axios from "axios";
-import { onMounted, ref } from "vue";
-
+import { onMounted,ref } from "vue";
 export default {
   setup() {
     // reactive state
+    let spin = ref('show');
     let transactions = ref([]);
-
-    onMounted(() => {
+    onMounted( () =>{
       // get data from api endpoint
       axios
         .get("http://localhost:8000/api/transaction")
         .then((result) => {
           transactions.value = result.data;
+          spin.value = 'hide';
+          
         })
         .catch((err) => {
-          console.log(err.response);
+          console.log(err);
         });
     });
 
-    function destroy(id, index) {
+    function destroy(id,index) {
       axios
         .delete(`http://localhost:8000/api/transaction/${id}`, transactions)
-        .then(() => {
-          transactions.value.data.splice(index, 1);
+        .then( () =>  {
+          spin.value = 'hide';
+          index  ?  transactions.value.data.splice(index, 1) : transactions.value.data = [];
         })
         .catch((err) => {
           console.log(err.response.data);
@@ -89,6 +102,7 @@ export default {
     return {
       transactions,
       destroy,
+      spin
     };
   },
 };
