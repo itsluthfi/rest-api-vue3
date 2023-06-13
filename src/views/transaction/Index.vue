@@ -1,4 +1,10 @@
 <template>
+  <div id="spin" :class="spin == 'hide'? 'd-none' : ''" class="position-absolute position-absolute top-50 start-50 translate-middle  w-100 h-100 opacity-50" style="background-color: #fff; z-index: 5;">
+    <div class="spinner-border text-primary position-absolute top-50 start-50" style="width: 5rem; height: 5rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+ 
   <div class="container my-5">
     <div class="row justify-content-center">
       <div class="col-8">
@@ -39,7 +45,7 @@
                     >
                     <button
                       class="btn btn-sm btn-outline-danger"
-                      @click.prevent="destroy(transaction.id, index)"
+                      @click.prevent="[destroy(transaction.id, index),spin = 'show']"
                     >
                       Delete
                     </button>
@@ -56,19 +62,20 @@
 
 <script>
 import axios from "axios";
-import { onMounted, ref } from "vue";
+import { onMounted,ref } from "vue";
 
 export default {
   setup() {
     // reactive state
+    let spin = ref('show');
     let transactions = ref([]);
-
     onMounted(() => {
       // get data from api endpoint
       axios
         .get("http://localhost:8000/api/transaction")
         .then((result) => {
           transactions.value = result.data;
+          spin.value = 'hide';
         })
         .catch((err) => {
           console.log(err.response);
@@ -79,6 +86,7 @@ export default {
       axios
         .delete(`http://localhost:8000/api/transaction/${id}`, transactions)
         .then(() => {
+          spin.value = 'hide';
           transactions.value.data.splice(index, 1);
         })
         .catch((err) => {
@@ -89,6 +97,7 @@ export default {
     return {
       transactions,
       destroy,
+      spin
     };
   },
 };
